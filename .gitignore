@@ -1,0 +1,7 @@
+*
+!common.src
+!xrates.bash
+!license
+!query.bash
+!sql/*
+

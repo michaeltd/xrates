@@ -1,0 +1,51 @@
+#+title: vacuum cleaner
+#+author: michaeltd
+#+date: <2020-10-09 Fri>
+#+startup: contents
+
+* purpose
+  + Gather various [[resources]] of interest:
+    - [[Agenda]]
+    - [[Bookmarks]]
+    - [[Xrates]]
+  + by any means available:
+    - web scraping
+    - api requests
+    - imports
+  + into convenient [[database backends]]:
+    - [[SQLite3]]
+    - [[postgresql]]
+  + for use with various types of [[interfaces]]:
+    - [[cli]]
+    - [[gui]]
+    - [[web]]
+* resources
+** Agenda
+   - TiddlyWiki
+   - Google Contacts
+** Bookmarks
+*** Firefox
+**** places.sqlite
+     Where firefox internaly saves it's web addresses.
+
+     ${HOME}/.mozilla/firefox/${defaultprofile}/places.sqlite
+
+     #+begin_src sql
+     select moz_bookmarks.title, moz_places.url from moz_bookmarks, moz_places where moz_bookmarks.fk = moz_places.id;
+     #+end_src
+
+**** bookmarks.html
+     Firefox's own export mechanism
+** Xrates
+*** ECB
+    [[https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html][From the European Central Bank]]
+
+* database backends
+** SQLite3
+** postgresql
+* interfaces
+** cli
+   
+** gui
+
+** web
