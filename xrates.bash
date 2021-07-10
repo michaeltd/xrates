@@ -56,9 +56,9 @@ declare -r myusage="
 Name: ${sbn}
 Usage: ${sbn} update | drop_temps | send_sql 'sql statement' | showme [...] 
 Description: Manipulate/Query sqlite ${database_fn}
-Examples: ${sbn} update # Populate ${database_fn} with todays xrates
+Examples: ${sbn} update # Populate sqlite with todays xrates
 	  ${sbn} drop_temps # Maintainance - Drop temp tables/Cleanup dead space
-	  ${sbn} send_sql 'sql statement' # Sends 'sql statement' to parse through ${database_fn}.
+	  ${sbn} send_sql 'sql statement' # Sends 'sql statement' to parse through sqlite.
 	  ${sbn} showme defunct # Show old currencies and their last valuation
 	  ${sbn} showme dates # Show dates with eur exchange rates stored
 	  ${sbn} showme dates last # Shows the last date imported
