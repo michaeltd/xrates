@@ -1,6 +1,8 @@
 *
+!databases/database.db
 !xrates.bash
 !license
+!sources/.keep
 !sql/*
 !readme.org
 
