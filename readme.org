@@ -19,7 +19,6 @@
   ./xrates.bash -h
   #+end_src
 
-  #+RESULTS:
   xrates.bash: main: 
   Name: xrates.bash
   Usage: xrates.bash update | drop_temps | send_sql 'sql statement' | showme [...] 
