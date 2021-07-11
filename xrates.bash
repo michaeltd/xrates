@@ -234,10 +234,7 @@ INSERT INTO CCY_XRATES SELECT DT,CCY,VAL FROM ${ccy_temp} ORDER BY CCY ASC;\n" >
 }
 
 main() {
-    if [[ "${#}" == "0" ]]; then
-	log2err "${FUNCNAME[0]}: ${myusage}"
-	return 1
-    elif [[ "${1}" =~ -h ]]; then
+    if [[ "${#}" == "0" || "${1}" =~ -h ]]; then
 	log2err "${FUNCNAME[0]}: ${myusage}"
 	return 1
     else

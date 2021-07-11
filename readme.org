@@ -4,7 +4,37 @@
 #+startup: contents
 
 * purpose
-  Gather xrates from the [[https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html][European Central Bank]] and store them localy for latter use.
+  Gather \euro currency exchange rates from the [[https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html][European Central Bank]] and store them localy for latter use.
 
+* files
+  - databases/database.db - sqlite2 file
+  - license - 
+  - readme.org - this file
+  - sql/*.sql - db create scripts
+  - xrates.bash - main script
+
+* usage
+
+  #+begin_src shell
+  ./xrates.bash -h
+  #+end_src
+
+  #+RESULTS:
+  xrates.bash: main: 
+  Name: xrates.bash
+  Usage: xrates.bash update | drop_temps | send_sql 'sql statement' | showme [...] 
+  Description: Manipulate/Query sqlite ./databases/database.db
+  Examples: xrates.bash update # Populate sqlite with last days xrates
+            xrates.bash drop_temps # Maintainance - Drop temp tables/cleanup dead space
+	    xrates.bash send_sql 'sql statement' # Sends 'sql statement' to parse through sqlite.
+	    xrates.bash showme defunct # Show old currencies and their last valuation
+	    xrates.bash showme dates # Show dates with eur exchange rates stored
+	    xrates.bash showme dates last # Shows the last date imported
+	    xrates.bash showme 20201023 # Will show ALL xrates for given date (if any)
+	    xrates.bash showme eur # Will show all eur xrates for the last available date
+	    xrates.bash showme 20201023 eur # Will show all xrates for eur in given date
+	    xrates.bash showme eur gbp # Will show last eur to gbp xrate
+	    xrates.bash showme 20201023 eur gbp # Will show eur xrate to gbp for given date
+  
 * [[licence][ISC License (ISC)]]
   
