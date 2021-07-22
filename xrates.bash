@@ -22,8 +22,7 @@ _date(){
 		    elif [[ "${2}" =~ / ]]; then
 			local myargs+=("-j" "-f" "%Y/%m/%d")
 		    elif [[ "${2}" =~ [:alpha:] ]]; then
-			local myargs+=("-j" "-f" "%d %b %Y")
-			# 2="${2:0:2} ${2:3:3} ${2:(-4)}"
+			local myargs+=("-j" "-f" "%d %B %Y")
 		    elif [[ "${2}" == "${2//[![:digit:]]}" ]]; then
 			case "${#2}" in
 			    6) local myargs+=("-j" "-f" "%y%m%d");;
