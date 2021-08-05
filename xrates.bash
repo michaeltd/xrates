@@ -29,10 +29,9 @@ _date(){
 			    6) local myargs+=("-j" "-f" "%y%m%d");;
 			    8) local myargs+=("-j" "-f" "%Y%m%d");;
 			    10) local myargs+=("-j" "-f" "%s");;
-			    *) echo "numerr"; return 1;;
+			    *) return 1;;
 			esac
 		    else
-			echo "nomatcherr"
 			return 1
 		    fi;;
 		-u) local myargs+=("${arg}" "-j");;
