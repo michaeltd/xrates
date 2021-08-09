@@ -39,6 +39,6 @@
   
 * Updates
 ** <2021-08-07 Sat>
-   Swaped pivot table workaround (sqlite has no p.t. queries)
+   Swapped pivot table workaround (sqlite has no p.t. queries)
    from sqlite3 to bash on update function for a more elegant solution.
    
