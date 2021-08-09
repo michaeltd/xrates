@@ -9,8 +9,8 @@
 * files
   - databases/database.db - sqlite2 file
   - license - 
-  - readme.org - this file
-  - sql/*.sql - db create scripts
+  - readme.org - 
+  - sql/*.sql - db create/update scripts
   - xrates.bash - main script
 
 * usage
@@ -37,3 +37,8 @@
 
 * [[licence][ISC License (ISC)]]
   
+* Updates
+** <2021-08-07 Sat>
+   Swaped pivot table workaround (sqlite has no p.t. queries)
+   from sqlite3 to bash on update function for a more elegant solution.
+   

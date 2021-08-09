@@ -10,6 +10,8 @@ declare -r sdn="$(dirname "$(realpath "${BASH_SOURCE[0]}")")" \
 set -euo pipefail
 IFS=$'\t\n'
 
+log2err(){ echo -ne "${sbn}: ${*}\n" >&2; }
+
 _date(){
     #Caution: Date magic ahead - DONT MESS WITH VOODOO!
     source /etc/os-release
@@ -53,10 +55,9 @@ declare -r time_stamp="$(_date -u +%s)"
 declare -r preview_mode=".mode box\n.headers on\n"
 declare -r myusage="
 Name: ${sbn}
-Usage: ${sbn} update | drop_temps | send_sql 'sql statement' | showme [...] 
+Usage: ${sbn} update | send_sql 'sql statement' | showme [...] 
 Description: Manipulate/Query sqlite ${database_fn}
-Examples: ${sbn} update # Populate sqlite with todays xrates
-	  ${sbn} drop_temps # Maintainance - Drop temp tables/Cleanup dead space
+Examples: ${sbn} update # Populate sqlite with available rates
 	  ${sbn} send_sql 'sql statement' # Sends 'sql statement' to parse through sqlite.
 	  ${sbn} showme defunct # Show old currencies and their last valuation
 	  ${sbn} showme dates # Show dates with eur exchange rates stored
@@ -67,8 +68,6 @@ Examples: ${sbn} update # Populate sqlite with todays xrates
 	  ${sbn} showme eur gbp # Will show last eur to gbp xrate
 	  ${sbn} showme 20201023 eur gbp # Will show eur xrate to gbp for given date
 "
-
-log2err(){ echo -ne "${sbn}: ${*}\n" >&2; }
 
 send_sql() {
     case "${#}" in
@@ -131,19 +130,13 @@ showme() {
     esac
 }
 
-splitstr(){
-    IFS=$'\n' read -d "" -ra arr <<< "${1//${2}/$'\n'}"
-    printf "%s\n" "${arr[*]}"
-}
+update() {
 
-trim() {
-    local var="${*}"
-    var="${var#"${var%%[![:space:]]*}"}"
-    var="${var%"${var##*[![:space:]]}"}"
-    printf "%s\n" "${var}"
-}
+    splitstr() {
+	IFS=$'\n' read -d "" -ra arr <<< "${1//${2}/$'\n'}"
+	printf "%s\n" "${arr[*]}"
+    }
 
-update(){
     local -r zip_src="https://www.ecb.europa.eu/stats/eurofxref/eurofxref.zip"
     local -r zip_file="${zip_src##*/}"
     local -r csv_file="${zip_file//.zip/.csv}"
@@ -163,19 +156,22 @@ update(){
     local -r nrm_date="$(_date -d "${csv_date}" +%F)"
     local -r nrm_stmp="$(_date -d "${csv_date}" +%s)"
 
+    _date -d "${nrm_date}" +%s &> /dev/null || { log2err "No valid date found!"; return 1; }
+    
     local -r sql_file="${tmp_dir}/${FUNCNAME[0]}.sql"
     
     local mysql=".bail on\n"
     local mysql+="BEGIN TRANSACTION;\n"
-    local mysql+="CREATE TABLE IF NOT EXISTS CCY_XRATES(DT TEXT,CCY,VAL TEXT);\n"
-    local mysql+="DELETE FROM CCY_XRATES WHERE DT LIKE '${nrm_date}';\n"
-    local mysql+="INSERT INTO CCY_XRATES VALUES('${nrm_date}', 'EUR', '1.0000');\n"    
+    local mysql+="DELETE FROM CCY_XRATES WHERE DT = '${nrm_date}';\n"
+    local mysql+="INSERT INTO CCY_XRATES VALUES('${nrm_date}', 'EUR', '1.0000');\n"
     for (( i = 1; i < ${#csv_farr[*]} - 1 ; i++ )); do
-	local mysql+="INSERT INTO CCY_XRATES VALUES('${nrm_date}', '$( trim ${csv_farr[i]} )', '$( trim ${csv_darr[i]} )');\n"
+	local mysql+="INSERT INTO CCY_XRATES VALUES('${nrm_date}', '${csv_farr[i]//[[:space:]]}', '${csv_darr[i]//[[:space:]]}');\n"
     done
     local mysql+="COMMIT;\nVACUUM;\n"
     
-    echo -ne "${mysql}" > "${sql_file}"
+    cat "${sdn}/sql/initial.sql" > "${sql_file}"
+
+    echo -ne "${mysql}" >> "${sql_file}"
 
     "sqlite3" "${database_fn}" < "${sql_file}"
 
