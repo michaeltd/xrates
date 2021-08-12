@@ -6,7 +6,7 @@
 * purpose
   Gather \euro currency exchange rates from the [[https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/html/index.en.html][European Central Bank]] and store them localy for latter use.
 
-
+  
 * files
   - databases/database.db - sqlite2 file
   - license - 
@@ -38,7 +38,7 @@
   #+end_src
 
 
-* Resources
+* resources
 
 ** Depracated Currencies
 
@@ -800,7 +800,7 @@
   
 * [[licence][ISC License (ISC)]]
   
-* Updates
+* updates
 
 ** <2021-08-07 Sat>
    Swapped pivot table workaround (sqlite has no p.t. queries)
