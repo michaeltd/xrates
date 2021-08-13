@@ -15,8 +15,8 @@ declare -r myusage="
 Name: ${sbn}
 Usage: ${sbn} update | send_sql 'sql statement' | showme [...] 
 Description: Manipulate/Query sqlite ${database_fn}
-Examples: ${sbn} update # Populate sqlite with available rates
-	  ${sbn} send_sql 'sql statement' # Sends 'sql statement' to parse through sqlite.
+Examples: ${sbn} update # Populate sqlite with available rates from the ECB
+	  ${sbn} send_sql 'sql statement' # Sends 'sql statement' to parse through sqlite
 	  ${sbn} showme defunct # Show old currencies and their last valuation
 	  ${sbn} showme last # Shows latest eur xrates
 	  ${sbn} showme last date # Shows the last date imported
@@ -76,7 +76,7 @@ send_sql() {
 showme() {
     local dt=''
     local -r thisusage="${FUNCNAME[0]}: Usage: ${sbn} ${FUNCNAME[0]} defunct|last [date]|dates|from_ccy|from_ccy to_ccy|[date |[from_ccy|[to_ccy]]]"
-    local -r preview_mode=".mode box\n.headers on\n"
+    local -r preview_mode=".mode column\n.headers on\n.timer on\n"
 
     defunct() {
 	echo -ne "${preview_mode}SELECT * FROM DEF_CCY_XRATES ORDER BY CCY ASC;\n" | "sqlite3" "${database_fn}"
@@ -90,7 +90,7 @@ showme() {
 	if [[ -z "${1}" ]]; then
 	    echo -ne "${preview_mode}SELECT * FROM LAST_XRATES WHERE FROM_CCY LIKE 'EUR' ORDER BY TO_CCY ASC;\n" | "sqlite3" "${database_fn}"
 	elif [[ -n "${1}" && "${1}" == "date" ]]; then
-	    echo -ne ".mode list\n.headers off\nSELECT MAX(DT) AS MAX_DATE FROM CCY_XRATES;\n" | "sqlite3" "${database_fn}"
+	    echo -ne ".mode list\n.headers off\nSELECT MAX_DATE FROM LAST_DATE;\n" | "sqlite3" "${database_fn}"
 	else
 	    log2err "${thisusage}"
 	    return 1
@@ -142,7 +142,7 @@ update() {
     local -r sql_file="${tmp_dir}/${FUNCNAME[0]}.sql"
 
     prep_things() {
-	if [[ "${1}" == "cleanup" ]];then
+	if [[ "${1}" == "tidy" ]];then
 	    mkdir -p "${2}"
 	    mv -f "${tmp_dir}"/* "${2}/"
 	    rm -rf "${tmp_dir}/"
@@ -180,7 +180,7 @@ update() {
 
     "sqlite3" "${database_fn}" < "${sql_file}"
 
-    prep_things "cleanup" "${my_datasrc_dir}"
+    prep_things "tidy" "${my_datasrc_dir}"
 
     log2err "${FUNCNAME[0]}: Imported xrates for: ${nrm_date}!"
 }
