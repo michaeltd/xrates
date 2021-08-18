@@ -30,8 +30,7 @@ Examples: ${sbn} update # Populate sqlite with available rates from the ECB
 
 _date(){
     #Caution: Date magic ahead - DONT MESS WITH VOODOO!
-    source /etc/os-release
-    if [[ "${NAME}" =~ BSD$ ]]; then
+    if [[ "$(uname -s)" =~ BSD$ ]]; then
 	for arg in "${@}"; do
 	    case "${arg}" in
 		-d)
@@ -59,8 +58,6 @@ _date(){
     else
 	local myargs=( "${@}" )
     fi
-    # Clean up temp sources (source /etc/os-release)
-    unset NAME VERSION VERSION_ID ID ANSI_COLOR PRETTY_NAME CPE_NAME HOME_URL BUG_REPORT_URL
     date "${myargs[@]}"
 }
 
