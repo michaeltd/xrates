@@ -804,5 +804,5 @@
 
 ** <2021-08-07 Sat>
    Swapped pivot table workaround (sqlite has no p.t. queries)
-   from sqlite3 to bash on update function for a more robust, hardcoded free approach.
+   from sqlite3 to bash on update function for a more robust, hardcoding free approach.
    
