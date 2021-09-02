@@ -70,6 +70,27 @@ send_sql() {
     esac
 }
 
+gui() {
+
+    local IFS=$'\|\t\n'
+    
+    type -P zenity &> /dev/null || { echo "Need zenity installed!" >&2; return; }
+    
+    local H=$(( $(xwininfo -root | awk '$1=="Height:" {print $2}') / 2 )) \
+	    W=$(( $(xwininfo -root | awk '$1=="Width:" {print $2}') / 2 ))
+    
+    local dt="$(zenity "--height=$H" "--width=$W" --title="Date selection" --list --text="Select a date:" "--column" "Dates available:" $("sqlite3" "${database_fn}" "SELECT DT FROM CCY_XRATES GROUP BY DT ORDER BY DT DESC;"))"
+
+    [[ -z "${dt}" ]] && return
+    
+    local cy="$(zenity "--height=$H" "--width=$W" --title="Currency selection" --list --text="Select a Currency:" "--column" "Currencies available:" $("sqlite3" "${database_fn}" "SELECT CCY FROM CCY_XRATES WHERE DT LIKE '${dt}' GROUP BY CCY ORDER BY CCY ASC;"))"
+
+    [[ -z "${cy}" ]] && return
+    
+    zenity "--height=$H" "--width=$W" --title="Results" --list --text="Exchange rates found:" "--column" "Date"  "--column" "From" "--column" "Rate"  "--column" "To" $("sqlite3" "${database_fn}" "SELECT * FROM XRATES WHERE DT = '${dt}' AND FROM_CCY = '${cy}';") > /dev/null
+
+}
+
 showme() {
     local dt=''
     local -r thisusage="${FUNCNAME[0]}: Usage: ${sbn} ${FUNCNAME[0]} defunct|last [date]|dates|from_ccy|from_ccy to_ccy|[date |[from_ccy|[to_ccy]]]"
@@ -182,7 +203,7 @@ update() {
     log2err "${FUNCNAME[0]}: Imported xrates for: ${nrm_date}!"
 }
 
-main() {
+xrates() {
     if [[ "${#}" == "0" || "${1}" =~ -h ]]; then
 	log2err "${FUNCNAME[0]}: ${myusage}"
 	return 1
@@ -191,4 +212,4 @@ main() {
     fi
 }
 
-[[ "${BASH_SOURCE[0]}" == "${0}" ]] && main "${@}"
+[[ "${BASH_SOURCE[0]}" == "${0}" ]] && "${sbn%%.*}" "${@}"
