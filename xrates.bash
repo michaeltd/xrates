@@ -29,7 +29,8 @@ Examples: ${sbn} update # Populate sqlite with available rates from the ECB
 "
 
 _date(){
-    #Caution: Date magic ahead - DONT MESS WITH VOODOO!
+    # ADHOC GNU 2 BSD date argument converter - Don't Judge!
+    # Caution: Date magic ahead - DONT MESS WITH VOODOO!
     if [[ "$(uname -s)" =~ BSD$ ]]; then
 	for arg in "${@}"; do
 	    case "${arg}" in
@@ -73,21 +74,37 @@ send_sql() {
 gui() {
 
     local IFS=$'\|\t\n'
-    
-    type -P zenity &> /dev/null || { echo "Need zenity installed!" >&2; return; }
+
+    local -a guis=( yad zenity )
+
+    for i in ${guis[@]}; do
+	type -P $i &>/dev/null && local gui=$i && break
+    done
+
+    [[ -z "${gui}" ]] && { echo "Need yad or zenity installed!" >&2; return; }
     
     local H=$(( $(xwininfo -root | awk '$1=="Height:" {print $2}') / 2 )) \
 	    W=$(( $(xwininfo -root | awk '$1=="Width:" {print $2}') / 2 ))
-    
-    local dt="$(zenity "--height=$H" "--width=$W" --title="Date selection" --list --text="Select a date:" "--column" "Dates available:" $("sqlite3" "${database_fn}" "SELECT DT FROM CCY_XRATES GROUP BY DT ORDER BY DT DESC;"))"
 
+    local -a opts=("--height=$H" "--width=$W" "--list")
+    
+    local dt="$("${gui}" "${opts[@]}" --title="Date selection" --text="Select a date:" \
+    	  "--column" "Dates available:" \
+	  	     $("sqlite3" "${database_fn}" "SELECT DT FROM CCY_XRATES GROUP BY DT ORDER BY DT DESC;"))"
+
+    dt="${dt//\|}"
     [[ -z "${dt}" ]] && return
-    
-    local cy="$(zenity "--height=$H" "--width=$W" --title="Currency selection" --list --text="Select a Currency:" "--column" "Currencies available:" $("sqlite3" "${database_fn}" "SELECT CCY FROM CCY_XRATES WHERE DT LIKE '${dt}' GROUP BY CCY ORDER BY CCY ASC;"))"
 
+    local cy="$("${gui}" "${opts[@]}" --title="Currency selection" --text="Select a Currency:" \
+    	  "--column" "Currencies available:" \
+	  	     $("sqlite3" "${database_fn}" "SELECT CCY FROM CCY_XRATES WHERE DT LIKE '${dt}' GROUP BY CCY ORDER BY CCY ASC;"))"
+
+    cy="${cy//\|}"
     [[ -z "${cy}" ]] && return
     
-    zenity "--height=$H" "--width=$W" --title="Results" --list --text="Exchange rates found:" "--column" "Date"  "--column" "From" "--column" "Rate"  "--column" "To" $("sqlite3" "${database_fn}" "SELECT * FROM XRATES WHERE DT = '${dt}' AND FROM_CCY = '${cy}';") > /dev/null
+    "${gui}" "${opts[@]}" "--title=Results" "--text=Exchange rates found:" \
+	"--column" "Date"  "--column" "From" "--column" "Rate"  "--column" "To" \
+	$("sqlite3" "${database_fn}" "SELECT * FROM XRATES WHERE DT = '${dt}' AND FROM_CCY = '${cy}';") > /dev/null
 
 }
 
